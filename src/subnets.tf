@@ -22,3 +22,14 @@ resource "aws_subnet" "private" {
     Name = "mlflow-private-${count.index}"
   }
 }
+
+############################
+# RDS Subnet Group
+############################
+
+resource "aws_db_subnet_group" "main" {
+  name       = "mlflow-db-subnets"
+  subnet_ids = aws_subnet.private[*].id
+
+  tags = { Name = "mlflow-db-subnets" }
+}

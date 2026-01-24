@@ -26,3 +26,7 @@ output "db_secret_arn" {
   value = aws_secretsmanager_secret.db.arn
 }
 
+output "ecr_repo_url" {
+  value = aws_ecr_repository.mlflow.repository_url
+}
+

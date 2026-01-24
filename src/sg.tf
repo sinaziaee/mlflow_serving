@@ -1,5 +1,5 @@
 ############################
-# Security Groups
+# ECS Task Security Groups
 ############################
 
 resource "aws_security_group" "ecs_tasks" {
@@ -17,6 +17,11 @@ resource "aws_security_group" "ecs_tasks" {
 
   tags = { Name = "mlflow-ecs-tasks-sg" }
 }
+
+############################
+# RDS Security Groups
+############################
+
 
 resource "aws_security_group" "rds" {
   name        = "mlflow-rds-sg"
@@ -39,4 +44,41 @@ resource "aws_security_group" "rds" {
   }
 
   tags = { Name = "mlflow-rds-sg" }
+}
+
+
+############################
+# ALB Security Group
+############################
+
+resource "aws_security_group" "alb" {
+  name        = "mlflow-alb-sg"
+  description = "Allow inbound HTTP to ALB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "mlflow-alb-sg" }
+}
+
+# Allow ECS tasks inbound only from ALB on 5000
+resource "aws_security_group_rule" "ecs_from_alb_5000" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.ecs_tasks.id
+  from_port                = 5000
+  to_port                  = 5000
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.alb.id
 }

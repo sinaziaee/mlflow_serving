@@ -22,7 +22,8 @@ resource "aws_db_instance" "mlflow" {
   publicly_accessible = false
   multi_az            = false
 
-  backup_retention_period = 7
+  # no need for backups
+  backup_retention_period = 0
   skip_final_snapshot     = true
 
   tags = { Name = "mlflow-postgres" }

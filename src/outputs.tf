@@ -30,3 +30,6 @@ output "ecr_repo_url" {
   value = aws_ecr_repository.mlflow.repository_url
 }
 
+output "mlflow_alb_dns_name" {
+  value = aws_lb.mlflow.dns_name
+}

@@ -13,8 +13,8 @@ resource "aws_db_instance" "mlflow" {
   storage_type      = "gp3"
 
   db_name  = "mlflow"
-  username = jsondecode(aws_secretsmanager_secret_version.db.secret_string)["username"]
-  password = jsondecode(aws_secretsmanager_secret_version.db.secret_string)["password"]
+  username = var.db_username
+  password = var.db_password
 
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.rds.id]

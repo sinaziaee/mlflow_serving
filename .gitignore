@@ -1,0 +1,8 @@
+terraform.tfstate
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate.backup
+outputs_tmp.txt
+# terraform.tfvars have the secret values in secret manager, so we need to ignore the file from commiting
+terraform.tfvars
+*.tfvars

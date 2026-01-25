@@ -23,7 +23,7 @@ terraform apply
 Push the mlflow image to the ECR repository
 
 Replace <ACCOUNT_ID> with your AWS account id (or run the command as-is and it’ll work if your AWS CLI is configured; you can also aws sts get-caller-identity to see it).
-
+```
 AWS_REGION=us-east-1
 REPO_URL=$(terraform output -raw ecr_repo_url)
 

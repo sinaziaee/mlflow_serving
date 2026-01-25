@@ -54,14 +54,6 @@ resource "aws_lb_listener" "http" {
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-locals {
-  # We stored {"username":"mlflow","password":"..."} in the secret JSON.
-  db_user = "mlflow"
-  db_name = "mlflow"
-
-  # Construct without password; password injected as env var MLFLOW_DB_PASSWORD
-  db_uri = "postgresql://${local.db_user}:$${MLFLOW_DB_PASSWORD}@${aws_db_instance.mlflow.address}:5432/${local.db_name}"
-}
 
 resource "aws_ecs_task_definition" "mlflow" {
   family                   = "mlflow-server"
@@ -83,7 +75,9 @@ resource "aws_ecs_task_definition" "mlflow" {
       ]
 
       environment = [
-        { name = "MLFLOW_BACKEND_STORE_URI",    value = local.db_uri },
+        { name = "MLFLOW_DB_HOST", value = aws_db_instance.mlflow.address },
+        { name = "MLFLOW_DB_USER", value = "mlflow" },
+        { name = "MLFLOW_DB_NAME", value = "mlflow" },
         { name = "MLFLOW_DEFAULT_ARTIFACT_ROOT", value = "s3://${aws_s3_bucket.mlflow_artifacts.bucket}/artifacts" }
       ]
 
@@ -93,6 +87,13 @@ resource "aws_ecs_task_definition" "mlflow" {
           valueFrom = "${aws_secretsmanager_secret.db.arn}:password::"
         }
       ]
+
+      command = [
+        "sh",
+        "-c",
+        "mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri \"postgresql://$${MLFLOW_DB_USER}:$${MLFLOW_DB_PASSWORD}@$${MLFLOW_DB_HOST}:5432/$${MLFLOW_DB_NAME}?sslmode=require\" --default-artifact-root \"$$MLFLOW_DEFAULT_ARTIFACT_ROOT\""
+      ]
+
 
       logConfiguration = {
         logDriver = "awslogs"
